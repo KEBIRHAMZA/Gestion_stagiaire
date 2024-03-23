@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div style="margin-top:-50px;" class="max-w-6xl mx-auto mt-8">
+    <div style="margin-bottom:0px; margin-top:150px;" class="flex justify-between items-center mb-4">
+        <div class="bg-blue-400 text-white py-2 px-4 rounded-lg">
+            Total Stagiaires: {{ st|length }}
+        </div>
+        <div class="bg-red-400 text-white py-2 px-4 rounded-lg">
+            Total Redoublants: {{ total_redoublants }}
+        </div>
+        <div class="bg-green-400 text-white py-2 px-4 rounded-lg">
+            Total Admis: {{ total_admis }}
+        </div>
+        <div class="bg-green-400 text-white py-2 px-4 rounded-lg">
+            Poucentage Admis: {{ percentage_admis }} %
+        </div>
+    </div>
+    <div class="flex justify-center items-center mt-4">
+        <form action="{% url 'generate_pdf' %}" method="GET">
+            <button type="submit" class="text-sm px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Imprimer</button>
+        </form>
+    </div>
+    <div class="relative overflow-x-auto">
+        <!-- Search bar -->
+        <div class="flex justify-center items-center mt-8 mb-4">
+            <form class="max-w-screen-xl mx-auto" method="GET" action="{% url 'index' %}">
+                <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                    </div>
+                    <input style='width: 400px;' name="query" type="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Nom et prenom" required>
+                    <button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        
+        <div class="relative overflow-x-auto">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 rounded-lg overflow-hidden">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="px-6 py-3">
+                        Nom complet
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        controle 1
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        controle 2
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        controle 3
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Moyenne
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Mention
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Action
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in st %}
+                <tr class="{% if s.mention == 'Admis' %} bg-green-200 {% elif s.mention == 'Redoublant' %} bg-red-200 {% endif %} bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{ s.nom }} {{ s.prenom }}
+                    </th>
+                    <td class="px-6 py-4">
+                        {{ s.note1 }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ s.note2 }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ s.note3 }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ s.avg_note|floatformat:"2" }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ s.mention }}
+                    </td>
+                    <td class="px-6 py-4">
+                        <a href="{% url 'update_stagiaire' nom=s.nom %}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Modifier</a>
+                    </td>
+                    <td class="px-6 py-4">
+                        <form action="{% url 'delete_stagiaire' nom=s.nom %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" onclick="" class="font-medium text-red-600 dark:text-red-500 hover:underline">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div>
+
+{% endblock content %}
